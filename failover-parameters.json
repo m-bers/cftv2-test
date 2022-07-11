@@ -1,154 +1,798 @@
 [
   {
-    "ParameterKey": "appDockerImageName",
-    "ParameterValue": "f5devcentral/f5-demo-app:latest"
+      "ParameterKey": "appDockerImageName",
+      "ParameterValue": "f5devcentral/f5-demo-app:latest"
   },
   {
-    "ParameterKey": "application",
-    "ParameterValue": "f5app"
+      "ParameterKey": "application",
+      "ParameterValue": "f5app"
   },
   {
-    "ParameterKey": "artifactLocation",
-    "ParameterValue": "f5-aws-cloudformation-v2/v2.3.0.0/examples/"
+      "ParameterKey": "artifactLocation",
+      "ParameterValue": "f5-aws-cloudformation-v2/v2.3.0.0/examples/"
   },
   {
-    "ParameterKey": "bigIpCustomImageId",
-    "ParameterValue": ""
+      "ParameterKey": "bigIpCustomImageId",
+      "ParameterValue": ""
   },
   {
-    "ParameterKey": "bigIpImage",
-    "ParameterValue": "*16.1.2.2-0.0.28**PAYG-Best Plus 25Mbps*"
+      "ParameterKey": "bigIpImage",
+      "ParameterValue": "*16.1.2.2-0.0.28**PAYG-Best Plus 25Mbps*"
   },
   {
-    "ParameterKey": "bigIpInstanceType",
-    "ParameterValue": "m5.xlarge"
+      "ParameterKey": "bigIpInstanceType",
+      "ParameterValue": "m5.xlarge"
   },
   {
-    "ParameterKey": "bigIpPeerAddr",
-    "ParameterValue": "10.0.1.11"
+      "ParameterKey": "bigIpPeerAddr",
+      "ParameterValue": "10.0.1.11"
   },
   {
-    "ParameterKey": "bigIpRuntimeInitConfig01",
-    "ParameterValue": "https://f5-cft-v2.s3.amazonaws.com/f5-aws-cloudformation-v2/v2.3.0.0/examples/failover/bigip-configurations/runtime-init-conf-3nic-payg-instance01-with-app.yaml"
+      "ParameterKey": "bigIpRuntimeInitConfig01",
+      "ParameterValue": {
+          "controls": {
+              "logLevel": "info",
+              "logFilename": "/var/log/cloud/bigIpRuntimeInit.log"
+          },
+          "extension_packages": {
+              "install_operations": [
+                  {
+                      "extensionType": "do",
+                      "extensionVersion": "1.28.0",
+                      "extensionHash": "fef1f81c259d1ead19c256a67b8dad492f2d70b1019ff520e16172a93e8c17c9"
+                  },
+                  {
+                      "extensionType": "as3",
+                      "extensionVersion": "3.36.1",
+                      "extensionHash": "48876a92d3d8fe7da70310882dc9fd1499d209579d798394715e18c12138daf3"
+                  },
+                  {
+                      "extensionType": "cf",
+                      "extensionVersion": "1.11.0",
+                      "extensionHash": "f3c7aca8a19d0dc01e529d38aa0d235b4dfad34beec2584f8402aa9a92c34699"
+                  }
+              ]
+          },
+          "extension_services": {
+              "service_operations": [
+                  {
+                      "extensionType": "do",
+                      "type": "inline",
+                      "value": {
+                          "schemaVersion": "1.0.0",
+                          "class": "Device",
+                          "async": true,
+                          "label": "Standalone 3NIC BIG-IP declaration for Declarative Onboarding with\nBYOL license",
+                          "Common": {
+                              "class": "Tenant",
+                              "My_DbVariables": {
+                                  "class": "DbVariables",
+                                  "config.allow.rfc3927": "enable",
+                                  "tm.tcpudptxchecksum": "Software-only"
+                              },
+                              "My_Ntp": {
+                                  "class": "NTP",
+                                  "servers": [
+                                      "0.pool.ntp.org",
+                                      "1.pool.ntp.org"
+                                  ],
+                                  "timezone": "UTC"
+                              },
+                              "My_Dns": {
+                                  "class": "DNS",
+                                  "nameServers": [
+                                      "169.254.169.253"
+                                  ],
+                                  "search": [
+                                      "f5.com"
+                                  ]
+                              },
+                              "My_System": {
+                                  "autoPhonehome": true,
+                                  "class": "System",
+                                  "hostname": "failover01.local"
+                              },
+                              "My_License": {
+                                  "class": "License",
+                                  "licenseType": "regKey",
+                                  "regKey": "AAAAA-BBBBB-CCCCC-DDDDD-EEEEEEE"
+                              },
+                              "admin": {
+                                  "class": "User",
+                                  "userType": "regular",
+                                  "password": "{{{BIGIP_PASSWORD}}}",
+                                  "shell": "bash"
+                              },
+                              "external": {
+                                  "class": "VLAN",
+                                  "tag": 4094,
+                                  "mtu": 1500,
+                                  "interfaces": [
+                                      {
+                                          "name": "1.1",
+                                          "tagged": false
+                                      }
+                                  ]
+                              },
+                              "external-self": {
+                                  "class": "SelfIp",
+                                  "address": "{{{SELF_IP_EXTERNAL}}}",
+                                  "vlan": "external",
+                                  "allowService": "default",
+                                  "trafficGroup": "traffic-group-local-only"
+                              },
+                              "internal": {
+                                  "class": "VLAN",
+                                  "interfaces": [
+                                      {
+                                          "name": "1.2",
+                                          "tagged": false
+                                      }
+                                  ],
+                                  "mtu": 1500,
+                                  "tag": 4093
+                              },
+                              "internal-self": {
+                                  "class": "SelfIp",
+                                  "address": "{{{SELF_IP_INTERNAL}}}",
+                                  "allowService": "default",
+                                  "trafficGroup": "traffic-group-local-only",
+                                  "vlan": "internal"
+                              },
+                              "default": {
+                                  "class": "Route",
+                                  "gw": "{{{DEFAULT_GW}}}",
+                                  "network": "default",
+                                  "mtu": 1500,
+                                  "localOnly": true
+                              }
+                          }
+                      }
+                  },
+                  {
+                      "extensionType": "cf",
+                      "type": "inline",
+                      "value": {
+                          "schemaVersion": "1.0.0",
+                          "class": "Cloud_Failover",
+                          "environment": "aws",
+                          "controls": {
+                              "class": "Controls",
+                              "logLevel": "silly"
+                          },
+                          "externalStorage": {
+                              "scopingTags": {
+                                  "f5_cloud_failover_label": "bigip_high_availability_solution"
+                              }
+                          },
+                          "failoverAddresses": {
+                              "enabled": true,
+                              "scopingTags": {
+                                  "f5_cloud_failover_label": "bigip_high_availability_solution"
+                              },
+                              "requireScopingTags": false
+                          }
+                      }
+                  },
+                  {
+                      "extensionType": "do",
+                      "type": "inline",
+                      "value": {
+                          "schemaVersion": "1.0.0",
+                          "class": "Device",
+                          "async": true,
+                          "label": "Standalone 3NIC BIG-IP declaration for Declarative Onboarding with\nBYOL license",
+                          "Common": {
+                              "class": "Tenant",
+                              "My_DbVariables": {
+                                  "class": "DbVariables",
+                                  "config.allow.rfc3927": "enable",
+                                  "tm.tcpudptxchecksum": "Software-only"
+                              },
+                              "My_Ntp": {
+                                  "class": "NTP",
+                                  "servers": [
+                                      "0.pool.ntp.org",
+                                      "1.pool.ntp.org"
+                                  ],
+                                  "timezone": "UTC"
+                              },
+                              "My_Dns": {
+                                  "class": "DNS",
+                                  "nameServers": [
+                                      "169.254.169.253"
+                                  ],
+                                  "search": [
+                                      "f5.com"
+                                  ]
+                              },
+                              "My_System": {
+                                  "autoPhonehome": true,
+                                  "class": "System",
+                                  "hostname": "failover01.local"
+                              },
+                              "admin": {
+                                  "class": "User",
+                                  "userType": "regular",
+                                  "password": "{{{BIGIP_PASSWORD}}}",
+                                  "shell": "bash"
+                              },
+                              "external": {
+                                  "class": "VLAN",
+                                  "tag": 4094,
+                                  "mtu": 1500,
+                                  "interfaces": [
+                                      {
+                                          "name": "1.1",
+                                          "tagged": false
+                                      }
+                                  ]
+                              },
+                              "external-self": {
+                                  "class": "SelfIp",
+                                  "address": "{{{SELF_IP_EXTERNAL}}}",
+                                  "vlan": "external",
+                                  "allowService": "default",
+                                  "trafficGroup": "traffic-group-local-only"
+                              },
+                              "internal": {
+                                  "class": "VLAN",
+                                  "interfaces": [
+                                      {
+                                          "name": "1.2",
+                                          "tagged": false
+                                      }
+                                  ],
+                                  "mtu": 1500,
+                                  "tag": 4093
+                              },
+                              "internal-self": {
+                                  "class": "SelfIp",
+                                  "address": "{{{SELF_IP_INTERNAL}}}",
+                                  "allowService": "default",
+                                  "trafficGroup": "traffic-group-local-only",
+                                  "vlan": "internal"
+                              },
+                              "default": {
+                                  "class": "Route",
+                                  "gw": "{{{DEFAULT_GW}}}",
+                                  "network": "default",
+                                  "mtu": 1500,
+                                  "localOnly": true
+                              },
+                              "configSync": {
+                                  "class": "ConfigSync",
+                                  "configsyncIp": "/Common/external-self/address"
+                              },
+                              "failoverAddress": {
+                                  "class": "FailoverUnicast",
+                                  "address": "/Common/external-self/address"
+                              },
+                              "failoverGroup": {
+                                  "class": "DeviceGroup",
+                                  "type": "sync-failover",
+                                  "members": [
+                                      "failover01.local",
+                                      "failover02.local"
+                                  ],
+                                  "owner": "/Common/failoverGroup/members/0",
+                                  "autoSync": true,
+                                  "saveOnAutoSync": false,
+                                  "networkFailover": true,
+                                  "fullLoadOnSync": false,
+                                  "asmSync": false
+                              },
+                              "trust": {
+                                  "class": "DeviceTrust",
+                                  "localUsername": "admin",
+                                  "localPassword": "{{{BIGIP_PASSWORD}}}",
+                                  "remoteHost": "/Common/failoverGroup/members/0",
+                                  "remoteUsername": "admin",
+                                  "remotePassword": "{{{BIGIP_PASSWORD}}}"
+                              }
+                          }
+                      }
+                  }
+              ]
+          },
+          "runtime_parameters": [
+              {
+                  "name": "BIGIP_PASSWORD",
+                  "type": "secret",
+                  "secretProvider": {
+                      "environment": "aws",
+                      "secretId": "mySecretId",
+                      "type": "SecretsManager",
+                      "version": "AWSCURRENT"
+                  }
+              },
+              {
+                  "name": "HOST_NAME",
+                  "type": "metadata",
+                  "metadataProvider": {
+                      "environment": "aws",
+                      "type": "compute",
+                      "field": "hostname"
+                  }
+              },
+              {
+                  "name": "SELF_IP_EXTERNAL",
+                  "type": "metadata",
+                  "metadataProvider": {
+                      "environment": "aws",
+                      "type": "network",
+                      "field": "local-ipv4s",
+                      "index": 1
+                  }
+              },
+              {
+                  "name": "SELF_IP_INTERNAL",
+                  "type": "metadata",
+                  "metadataProvider": {
+                      "type": "network",
+                      "environment": "aws",
+                      "field": "local-ipv4s",
+                      "index": 2
+                  }
+              },
+              {
+                  "name": "DEFAULT_GW",
+                  "type": "metadata",
+                  "metadataProvider": {
+                      "environment": "aws",
+                      "type": "network",
+                      "field": "local-ipv4s",
+                      "index": 1,
+                      "ipcalc": "first"
+                  }
+              }
+          ]
+      }
   },
   {
-    "ParameterKey": "bigIpRuntimeInitConfig02",
-    "ParameterValue": "https://f5-cft-v2.s3.amazonaws.com/f5-aws-cloudformation-v2/v2.3.0.0/examples/failover/bigip-configurations/runtime-init-conf-3nic-payg-instance02-with-app.yaml"
+      "ParameterKey": "bigIpRuntimeInitConfig02",
+      "ParameterValue": {
+          "controls": {
+              "logLevel": "info",
+              "logFilename": "/var/log/cloud/bigIpRuntimeInit.log"
+          },
+          "extension_packages": {
+              "install_operations": [
+                  {
+                      "extensionType": "do",
+                      "extensionVersion": "1.28.0",
+                      "extensionHash": "fef1f81c259d1ead19c256a67b8dad492f2d70b1019ff520e16172a93e8c17c9"
+                  },
+                  {
+                      "extensionType": "as3",
+                      "extensionVersion": "3.36.1",
+                      "extensionHash": "48876a92d3d8fe7da70310882dc9fd1499d209579d798394715e18c12138daf3"
+                  },
+                  {
+                      "extensionType": "cf",
+                      "extensionVersion": "1.11.0",
+                      "extensionHash": "f3c7aca8a19d0dc01e529d38aa0d235b4dfad34beec2584f8402aa9a92c34699"
+                  }
+              ]
+          },
+          "extension_services": {
+              "service_operations": [
+                  {
+                      "extensionType": "do",
+                      "type": "inline",
+                      "value": {
+                          "schemaVersion": "1.0.0",
+                          "class": "Device",
+                          "async": true,
+                          "label": "Standalone 3NIC BIG-IP declaration for Declarative Onboarding with\nBYOL license",
+                          "Common": {
+                              "class": "Tenant",
+                              "My_DbVariables": {
+                                  "class": "DbVariables",
+                                  "config.allow.rfc3927": "enable",
+                                  "tm.tcpudptxchecksum": "Software-only"
+                              },
+                              "My_Ntp": {
+                                  "class": "NTP",
+                                  "servers": [
+                                      "0.pool.ntp.org",
+                                      "1.pool.ntp.org"
+                                  ],
+                                  "timezone": "UTC"
+                              },
+                              "My_Dns": {
+                                  "class": "DNS",
+                                  "nameServers": [
+                                      "169.254.169.253"
+                                  ],
+                                  "search": [
+                                      "f5.com"
+                                  ]
+                              },
+                              "My_System": {
+                                  "autoPhonehome": true,
+                                  "class": "System",
+                                  "hostname": "failover02.local"
+                              },
+                              "My_License": {
+                                  "class": "License",
+                                  "licenseType": "regKey",
+                                  "regKey": "AAAAA-BBBBB-CCCCC-DDDDD-EEEEEEE"
+                              },
+                              "admin": {
+                                  "class": "User",
+                                  "userType": "regular",
+                                  "password": "{{{BIGIP_PASSWORD}}}",
+                                  "shell": "bash"
+                              },
+                              "external": {
+                                  "class": "VLAN",
+                                  "tag": 4094,
+                                  "mtu": 1500,
+                                  "interfaces": [
+                                      {
+                                          "name": "1.1",
+                                          "tagged": false
+                                      }
+                                  ]
+                              },
+                              "external-self": {
+                                  "class": "SelfIp",
+                                  "address": "{{{SELF_IP_EXTERNAL}}}",
+                                  "vlan": "external",
+                                  "allowService": "default",
+                                  "trafficGroup": "traffic-group-local-only"
+                              },
+                              "internal": {
+                                  "class": "VLAN",
+                                  "interfaces": [
+                                      {
+                                          "name": "1.2",
+                                          "tagged": false
+                                      }
+                                  ],
+                                  "mtu": 1500,
+                                  "tag": 4093
+                              },
+                              "internal-self": {
+                                  "class": "SelfIp",
+                                  "address": "{{{SELF_IP_INTERNAL}}}",
+                                  "allowService": "default",
+                                  "trafficGroup": "traffic-group-local-only",
+                                  "vlan": "internal"
+                              },
+                              "default": {
+                                  "class": "Route",
+                                  "gw": "{{{DEFAULT_GW}}}",
+                                  "network": "default",
+                                  "mtu": 1500,
+                                  "localOnly": true
+                              }
+                          }
+                      }
+                  },
+                  {
+                      "extensionType": "cf",
+                      "type": "inline",
+                      "value": {
+                          "schemaVersion": "1.0.0",
+                          "class": "Cloud_Failover",
+                          "environment": "aws",
+                          "controls": {
+                              "class": "Controls",
+                              "logLevel": "silly"
+                          },
+                          "externalStorage": {
+                              "scopingTags": {
+                                  "f5_cloud_failover_label": "bigip_high_availability_solution"
+                              }
+                          },
+                          "failoverAddresses": {
+                              "enabled": true,
+                              "scopingTags": {
+                                  "f5_cloud_failover_label": "bigip_high_availability_solution"
+                              },
+                              "requireScopingTags": false
+                          }
+                      }
+                  },
+                  {
+                      "extensionType": "do",
+                      "type": "inline",
+                      "value": {
+                          "schemaVersion": "1.0.0",
+                          "class": "Device",
+                          "async": true,
+                          "label": "Standalone 3NIC BIG-IP declaration for Declarative Onboarding with\nBYOL license",
+                          "Common": {
+                              "class": "Tenant",
+                              "My_DbVariables": {
+                                  "class": "DbVariables",
+                                  "config.allow.rfc3927": "enable",
+                                  "tm.tcpudptxchecksum": "Software-only"
+                              },
+                              "My_Ntp": {
+                                  "class": "NTP",
+                                  "servers": [
+                                      "0.pool.ntp.org",
+                                      "1.pool.ntp.org"
+                                  ],
+                                  "timezone": "UTC"
+                              },
+                              "My_Dns": {
+                                  "class": "DNS",
+                                  "nameServers": [
+                                      "169.254.169.253"
+                                  ],
+                                  "search": [
+                                      "f5.com"
+                                  ]
+                              },
+                              "My_System": {
+                                  "autoPhonehome": true,
+                                  "class": "System",
+                                  "hostname": "failover02.local"
+                              },
+                              "admin": {
+                                  "class": "User",
+                                  "userType": "regular",
+                                  "password": "{{{BIGIP_PASSWORD}}}",
+                                  "shell": "bash"
+                              },
+                              "external": {
+                                  "class": "VLAN",
+                                  "tag": 4094,
+                                  "mtu": 1500,
+                                  "interfaces": [
+                                      {
+                                          "name": "1.1",
+                                          "tagged": false
+                                      }
+                                  ]
+                              },
+                              "external-self": {
+                                  "class": "SelfIp",
+                                  "address": "{{{SELF_IP_EXTERNAL}}}",
+                                  "vlan": "external",
+                                  "allowService": "default",
+                                  "trafficGroup": "traffic-group-local-only"
+                              },
+                              "internal": {
+                                  "class": "VLAN",
+                                  "interfaces": [
+                                      {
+                                          "name": "1.2",
+                                          "tagged": false
+                                      }
+                                  ],
+                                  "mtu": 1500,
+                                  "tag": 4093
+                              },
+                              "internal-self": {
+                                  "class": "SelfIp",
+                                  "address": "{{{SELF_IP_INTERNAL}}}",
+                                  "allowService": "default",
+                                  "trafficGroup": "traffic-group-local-only",
+                                  "vlan": "internal"
+                              },
+                              "default": {
+                                  "class": "Route",
+                                  "gw": "{{{DEFAULT_GW}}}",
+                                  "network": "default",
+                                  "mtu": 1500,
+                                  "localOnly": true
+                              },
+                              "configSync": {
+                                  "class": "ConfigSync",
+                                  "configsyncIp": "/Common/external-self/address"
+                              },
+                              "failoverAddress": {
+                                  "class": "FailoverUnicast",
+                                  "address": "/Common/external-self/address"
+                              },
+                              "failoverGroup": {
+                                  "class": "DeviceGroup",
+                                  "type": "sync-failover",
+                                  "members": [
+                                      "failover01.local",
+                                      "failover02.local"
+                                  ],
+                                  "owner": "/Common/failoverGroup/members/0",
+                                  "autoSync": true,
+                                  "saveOnAutoSync": false,
+                                  "networkFailover": true,
+                                  "fullLoadOnSync": false,
+                                  "asmSync": false
+                              },
+                              "trust": {
+                                  "class": "DeviceTrust",
+                                  "localUsername": "admin",
+                                  "localPassword": "{{{BIGIP_PASSWORD}}}",
+                                  "remoteHost": "{{{REMOTE_HOST}}}",
+                                  "remoteUsername": "admin",
+                                  "remotePassword": "{{{BIGIP_PASSWORD}}}"
+                              }
+                          }
+                      }
+                  }
+              ]
+          },
+          "runtime_parameters": [
+              {
+                  "name": "BIGIP_PASSWORD",
+                  "type": "secret",
+                  "secretProvider": {
+                      "environment": "aws",
+                      "secretId": "mySecretId",
+                      "type": "SecretsManager",
+                      "version": "AWSCURRENT"
+                  }
+              },
+              {
+                  "name": "HOST_NAME",
+                  "type": "metadata",
+                  "metadataProvider": {
+                      "environment": "aws",
+                      "type": "compute",
+                      "field": "hostname"
+                  }
+              },
+              {
+                  "name": "SELF_IP_EXTERNAL",
+                  "type": "metadata",
+                  "metadataProvider": {
+                      "environment": "aws",
+                      "type": "network",
+                      "field": "local-ipv4s",
+                      "index": 1
+                  }
+              },
+              {
+                  "name": "SELF_IP_INTERNAL",
+                  "type": "metadata",
+                  "metadataProvider": {
+                      "type": "network",
+                      "environment": "aws",
+                      "field": "local-ipv4s",
+                      "index": 2
+                  }
+              },
+              {
+                  "name": "DEFAULT_GW",
+                  "type": "metadata",
+                  "metadataProvider": {
+                      "environment": "aws",
+                      "type": "network",
+                      "field": "local-ipv4s",
+                      "index": 1,
+                      "ipcalc": "first"
+                  }
+              },
+              {
+                  "name": "REMOTE_HOST",
+                  "type": "tag",
+                  "tagProvider": {
+                      "environment": "aws",
+                      "key": "bigIpPeerAddr"
+                  }
+              }
+          ]
+      }
   },
   {
-    "ParameterKey": "bigIpRuntimeInitPackageUrl",
-    "ParameterValue": "https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.5.0/dist/f5-bigip-runtime-init-1.5.0-1.gz.run"
+      "ParameterKey": "bigIpRuntimeInitPackageUrl",
+      "ParameterValue": "https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.5.0/dist/f5-bigip-runtime-init-1.5.0-1.gz.run"
   },
   {
-    "ParameterKey": "cfeS3Bucket",
-    "ParameterValue": "bigip-high-availability-solution"
+      "ParameterKey": "cfeS3Bucket",
+      "ParameterValue": "bigip-high-availability-solution"
   },
   {
-    "ParameterKey": "cfeTag",
-    "ParameterValue": "bigip_high_availability_solution"
+      "ParameterKey": "cfeTag",
+      "ParameterValue": "bigip_high_availability_solution"
   },
   {
-    "ParameterKey": "cfeVipTag",
-    "ParameterValue": "10.0.0.101,10.0.4.101"
+      "ParameterKey": "cfeVipTag",
+      "ParameterValue": "10.0.0.101,10.0.4.101"
   },
   {
-    "ParameterKey": "cost",
-    "ParameterValue": "f5cost"
+      "ParameterKey": "cost",
+      "ParameterValue": "f5cost"
   },
   {
-    "ParameterKey": "environment",
-    "ParameterValue": "f5env"
+      "ParameterKey": "environment",
+      "ParameterValue": "f5env"
   },
   {
-    "ParameterKey": "bigIpExternalSelfIp01",
-    "ParameterValue": "10.0.0.11"
+      "ParameterKey": "bigIpExternalSelfIp01",
+      "ParameterValue": "10.0.0.11"
   },
   {
-    "ParameterKey": "bigIpExternalSelfIp02",
-    "ParameterValue": "10.0.4.11"
+      "ParameterKey": "bigIpExternalSelfIp02",
+      "ParameterValue": "10.0.4.11"
   },
   {
-    "ParameterKey": "bigIpExternalVip01",
-    "ParameterValue": "10.0.0.101"
+      "ParameterKey": "bigIpExternalVip01",
+      "ParameterValue": "10.0.0.101"
   },
   {
-    "ParameterKey": "bigIpExternalVip02",
-    "ParameterValue": "10.0.4.101"
+      "ParameterKey": "bigIpExternalVip02",
+      "ParameterValue": "10.0.4.101"
   },
   {
-    "ParameterKey": "group",
-    "ParameterValue": "f5group"
+      "ParameterKey": "group",
+      "ParameterValue": "f5group"
   },
   {
-    "ParameterKey": "bigIpInternalSelfIp01",
-    "ParameterValue": "10.0.2.11"
+      "ParameterKey": "bigIpInternalSelfIp01",
+      "ParameterValue": "10.0.2.11"
   },
   {
-    "ParameterKey": "bigIpInternalSelfIp02",
-    "ParameterValue": "10.0.6.11"
+      "ParameterKey": "bigIpInternalSelfIp02",
+      "ParameterValue": "10.0.6.11"
   },
   {
-    "ParameterKey": "bigIpMgmtAddress01",
-    "ParameterValue": "10.0.1.11"
+      "ParameterKey": "bigIpMgmtAddress01",
+      "ParameterValue": "10.0.1.11"
   },
   {
-    "ParameterKey": "bigIpMgmtAddress02",
-    "ParameterValue": "10.0.5.11"
+      "ParameterKey": "bigIpMgmtAddress02",
+      "ParameterValue": "10.0.5.11"
   },
   {
-    "ParameterKey": "numAzs",
-    "ParameterValue": "2"
+      "ParameterKey": "numAzs",
+      "ParameterValue": "2"
   },
   {
-    "ParameterKey": "numSubnets",
-    "ParameterValue": "4"
+      "ParameterKey": "numSubnets",
+      "ParameterValue": "4"
   },
   {
-    "ParameterKey": "owner",
-    "ParameterValue": "f5owner"
+      "ParameterKey": "owner",
+      "ParameterValue": "f5owner"
   },
   {
-    "ParameterKey": "provisionExampleApp",
-    "ParameterValue": "true"
+      "ParameterKey": "provisionExampleApp",
+      "ParameterValue": "true"
   },
   {
-    "ParameterKey": "provisionPublicIpMgmt",
-    "ParameterValue": "true"
+      "ParameterKey": "provisionPublicIpMgmt",
+      "ParameterValue": "true"
   },
   {
-    "ParameterKey": "restrictedSrcAddressMgmt",
-    "ParameterValue": ""
+      "ParameterKey": "restrictedSrcAddressMgmt",
+      "ParameterValue": ""
   },
   {
-    "ParameterKey": "restrictedSrcAddressApp",
-    "ParameterValue": ""
+      "ParameterKey": "restrictedSrcAddressApp",
+      "ParameterValue": ""
   },
   {
-    "ParameterKey": "s3BucketName",
-    "ParameterValue": "f5-cft-v2"
+      "ParameterKey": "s3BucketName",
+      "ParameterValue": "f5-cft-v2"
   },
   {
-    "ParameterKey": "s3BucketRegion",
-    "ParameterValue": "us-east-1"
+      "ParameterKey": "s3BucketRegion",
+      "ParameterValue": "us-east-1"
   },
   {
-    "ParameterKey": "secretArn",
-    "ParameterValue": ""
+      "ParameterKey": "secretArn",
+      "ParameterValue": ""
   },
   {
-    "ParameterKey": "sshKey",
-    "ParameterValue": ""
+      "ParameterKey": "sshKey",
+      "ParameterValue": ""
   },
   {
-    "ParameterKey": "subnetMask",
-    "ParameterValue": "24"
+      "ParameterKey": "subnetMask",
+      "ParameterValue": "24"
   },
   {
-    "ParameterKey": "uniqueString",
-    "ParameterValue": "myUniqStr"
+      "ParameterKey": "uniqueString",
+      "ParameterValue": "myUniqStr"
   },
   {
-    "ParameterKey": "vpcCidr",
-    "ParameterValue": "10.0.0.0/16"
+      "ParameterKey": "vpcCidr",
+      "ParameterValue": "10.0.0.0/16"
   }
 ]
